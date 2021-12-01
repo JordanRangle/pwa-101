@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!-- assets -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="/styles.css">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <!-- ios support -->
+    <link rel="apple-touch-icon" href="/img/icons/icon-96x96.png">
+    <meta name="apple-mobile-web-app-status-bar" content="#FFE1C4">
+    <meta name="theme-color" content="#FFE1C4">
+
+</head>
+<body>
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <svg class="bi me-2" width="40" height="32">
+                <use xlink:href="#bootstrap"></use>
+            </svg>
+            <span class="fs-4">PWA Demo</span>
+        </a>
+    
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a href="/home.html" class="nav-link active">Home</a>
+            </li>
+            <li class="nav-item">
+                <a href="/camera.html" class="nav-link">Camera</a>
+            </li>
+            <li class="nav-item">
+                <a href="/mic.html" class="nav-link">Mic</a>
+            </li>
+            <li class="nav-item">
+                <a href="/geolocation.html" class="nav-link">Geolocation</a>
+            </li>
+            <li class="nav-item">
+                <a href="/offline.html" class="nav-link">Offline</a>
+            </li>
+        </ul>
+    </header>
+
+    <!-- content start -->
+    <div class="container">
+        <h2>What is a PWA?</h2>
+        <p>A progressive web app is an application made up of HTML + CSS + JavaScript that creates a native app-like experience. To achieve this a PWA should load and respond quickly, have smooth animations, utilize a manifest for app styling, and service workers to allow the app to run in the background and load cached content while offline. </p>
+
+        <hr>
+
+        <h2>Styling your PWA to look like an app</h2>
+        <p>Utilizing the power of the manifest.json file, you can add an app icon and name, splash screen background color, icon, and name, and even style the device status bar. Below is an example of what the manifest.json file should look like.</p>
+        <p><em>Note: the manifest.json is required for your app to be considered a PWA. This file must be located in the root directory of your app.</em></p>
+        <code>manifest.json</code>
+        <div class="row">
+            <div class="col">
+<pre>
+    <code>
+    {
+        "name": "My Progressive Web App",
+        "short_name": "My PWA,
+        "start_url": ".",
+        "background_color": "#6dcdb1",
+        "theme_color": "#009578",
+        "display": "standalone",
+        "icons": [
+            {
+                "src": "images/logo_192.png",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "images/logo_512.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    }</code>
+        </pre>
+            </div>
+            <div class="col">
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>name:</strong> Text that appears on the splash screen.</li>
+                    <li class="list-group-item"><strong>short_name:</strong> Text that appears under the app icon. This text should be no longer than 26 characters.</li>
+                    <li class="list-group-item"><strong>start_url:</strong> The starting point within your app.</li>
+                    <li class="list-group-item"><strong>background_color:</strong> The background color of the splash screen.</li>
+                    <li class="list-group-item"><strong>theme_color:</strong> The color of the device status bar.</li>
+                    <li class="list-group-item"><strong>display:</strong> Should the app appear within a browser window or full screen?</li>
+                    <li class="list-group-item"><strong>orientation </strong>(optional): pre-determine if your app is portrait or landscape.</li>
+                    <li class="list-group-item"><strong>icons:</strong> images used for your app icon and splash screen image. You should include a 192px by 192px and a 512px by 512px images at the bare minimum.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr>
+
+        <h2>Making your PWA come to life</h2>
+        <p>Service workers enable your app to pull data from cache and load while offline and run in the background while your app is not in use. Service workers run on a separate thread than the main application JavaScript so they cannot directly interact with the DOM.</p>
+        <p>The location of the service worker <code>.js</code> file determines the scope of the service worker. Adding the file to the root directory will give the service worker access to the full scope of your app, while adding it into a specific location will limit the service worker's scope to JavaScript running in that specific directory.</p>
+        <p>Start by checking if the browser supports services workers. If so you can register the service worker.</p>
+        <pre><code>
+    if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('service worker registered'))
+        .catch(err => console.log('service worker not registered', err));
+    } else {
+        // doesnt support service workers
+    }
+        </code></pre>
+
+        <p>Next you'll add a few event listeners to your service worker. The first event listener watches for the service worker to finish installing, at which point we define what we want to cache.</p>
+        
+        <pre><code>
+    // install event
+    self.addEventListener('install', evt => {
+        //console.log('service worker installed');
+        evt.waitUntil(
+            caches.open(staticCacheName).then((cache) => {
+                console.log('caching shell assets');
+                // cache the items included in the array
+                cache.addAll(
+                '/',
+                '/index.html',
+                '/js/app.js',
+                '/js/ui.js',
+                '/js/materialize.min.js',
+                'https://fonts.googleapis.com/icon?family=Material+Icons',
+                'https://fonts.gstatic.com/s/materialicons/v47/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2',
+                );
+            })
+        );
+    });
+        </code></pre>
+
+        <p>Next we watch for the service work to become active.</p>
+        <pre><code>
+    // activate event
+    self.addEventListener('activate', evt => {
+        //console.log('service worker activated');
+        evt.waitUntil(
+            caches.keys().then(keys => {
+                //console.log(keys);
+                return Promise.all(keys
+                .filter(key => key !== staticCacheName && key !== dynamicCacheName)
+                .map(key => caches.delete(key))
+                );
+            })
+        );
+    });
+        </code></pre>
+
+        <p>Finally we setup an event listener to watch for fetch events. This will allow us to cache content or utilize cached content instead of making HTTP requests to drastically speed up load times and reduce unnecessary network requests.</p>
+        <pre><code>
+    // fetch event
+    self.addEventListener('fetch', evt => {
+        //console.log('fetch event', evt);
+        evt.respondWith(
+            caches.match(evt.request).then(cacheRes => {
+                return cacheRes || fetch(evt.request).then(fetchRes => {
+                    return caches.open(dynamicCacheName).then(cache => {
+                        cache.put(evt.request.url, fetchRes.clone());
+                        return fetchRes;
+                    })
+                });
+            }).catch(() => caches.match('/pages/fallback.html'))
+        );
+    });
+        </code></pre>
+
+        <hr>
+
+        <h2>Going Offline</h2>
+        <p>Now that we have our root level service worker setup, our app can cache necessary files and open even if the device is offline. Your app does not need to maintain full functionality while offline. You can setup service workers to preform tasks once the device is back online. For example if your app allows users to post data, they can locally create the post and when the device is back online the service worker can POST the data in the background.</p>
+
+        <hr>
+
+        <h2>Being Progressive</h2>
+        <p>The word "progressive" in PWA refers to the app utilizing cutting edge APIs. These APIs allow the web based app access to native device features. Below are a few examples of these APIs.</p>
+        <p><em>Note: It is very important to check <a href="https://caniuse.com">Can I Use</a> to verify if the API you're interested in using is supported on all the devices you're targeting. iOS specifically does not currently many of these APIs becuase Apple either wants to retain the value of native apps by keeping apps within their walled garden (push notifications, native add to home screen), or for privacy reasons to make it more difficult for devices to be tracked across the web (netowrk information, battery status, proximity sensor). </em></p>
+        
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="card" style="width: 18rem;">
+                    <img src="https://thumbor.forbes.com/thumbor/960x0/https%3A%2F%2Fspecials-images.forbesimg.com%2Fimageserve%2F5e8b369901879f000703e1ea%2FWhite-Logitech-StreamCam-on-the-lid-of-a-laptop%2F960x0.jpg%3Ffit%3Dscale" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Camera</h5>
+                        <p class="card-text">Take some photos with a photoboth style app. <br><br></p>
+                        <a href="camera.html" class="btn btn-primary">Try Camera</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card" style="width: 18rem;">
+                    <img src="https://media.istockphoto.com/photos/professional-studio-microphone-background-podcast-or-recording-studio-picture-id1310278461?b=1&k=20&m=1310278461&s=170667a&w=0&h=O1WJTjOZeKcRuNw45EOriwzmtZl7tYDs2C1d-y4gpUc=" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Microphone</h5>
+                        <p class="card-text">Quickly annotate some content and put your speech skills to the test.</p>
+                        <a href="mic.html" class="btn btn-primary">Try Microphone</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card" style="width: 18rem;">
+                    <img src="https://www.geopointe.com/wp-content/uploads/2017/07/Geopointe-The-History-of-Geotargeting-HEeader-1291x674-1.png" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Geolocation</h5>
+                        <p class="card-text">Want to see how fast you're going and not in a car? Check out this speedometer app.</p>
+                        <a href="geolocation.html" class="btn btn-primary">Try Speedometer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <h2>Additional Resources</h2>
+        <p>The following are a list or resources I've found helpful while researching PWAs</p>
+        <div class="list-group">
+            <a href="https://whatpwacando.today/" class="list-group-item list-group-item-action">What Can PWA Do Today</a>
+            <a href="https://www.youtube.com/watch?v=4XT23X0Fjfk&list=PL4cUxeGkcC9gTxqJBcDmoi5Q2pzDusSL7&index=1" class="list-group-item list-group-item-action">The Net Ninja Youtube Tutorial</a>
+            <a href="https://www.freecodecamp.org/news/build-a-pwa-from-scratch-with-html-css-and-javascript/" class="list-group-item list-group-item-action">Free Code Camp PWA Tutorial</a>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers" class="list-group-item list-group-item-action">MDN Using Service Workers</a>
+        </div>
+    </div>
+    <!-- content end -->
+
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <div class="col-md-4 d-flex align-items-center">
+            <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                <svg class="bi" width="30" height="24">
+                    <use xlink:href="#bootstrap"></use>
+                </svg>
+            </a>
+            <span class="text-muted">© 2021 Company, Inc</span>
+        </div>
+    
+        <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+            <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24">
+                        <use xlink:href="#twitter"></use>
+                    </svg></a></li>
+            <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24">
+                        <use xlink:href="#instagram"></use>
+                    </svg></a></li>
+            <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24">
+                        <use xlink:href="#facebook"></use>
+                    </svg></a></li>
+        </ul>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    
+    <script src="/scripts/app.js"></script>
+    
+</body>
+</html>

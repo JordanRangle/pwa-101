@@ -1,0 +1,20 @@
+{
+    "name": "Jordan's PWA Demo",
+    "short_name": "PWA Demo",
+    "start_url": ".",
+    "background_color": "#34cceb",
+    "theme_color": "#7a34eb",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "images/logo_192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "images/logo_512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
